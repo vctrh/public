@@ -39,21 +39,11 @@
     display: flex; align-items: center; justify-content: center; color: #444; font-size: 14px;
   }
 
-  /* Nav */
-  .nav { position: sticky; top: 0; background: #111; z-index: 100; padding: 12px 0; margin-bottom: 24px; border-bottom: 1px solid #222; }
-  .nav-inner { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .nav a {
-    color: #999; text-decoration: none; font-size: 13px; padding: 4px 10px;
-    border-radius: 4px; background: #1a1a1a; transition: all 0.2s;
-  }
-  .nav a:hover { color: #D45520; background: #222; }
-  .nav .day-sep { color: #444; align-self: center; font-size: 11px; }
 </style>
 </head>
 <body>
 <h1>Snapkick &mdash; Poomsae Review</h1>
 <p class="subtitle" id="subtitle"></p>
-<div class="nav" id="nav"></div>
 <div id="content"><p class="loading">Loading video data...</p></div>
 
 <script>
@@ -70,14 +60,6 @@ function formatGroupDate(ts) {
   });
 }
 
-function formatNavDate(ts) {
-  const d = new Date(ts * 1000);
-  return d.toLocaleString('en-US', {
-    month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit', hour12: true,
-    timeZone: 'UTC'
-  });
-}
 
 fetch('review-data.json')
   .then(r => r.json())
@@ -137,15 +119,6 @@ fetch('review-data.json')
     const dupeNote = dupesRemoved > 0 ? ` · ${dupesRemoved} duplicates removed` : '';
     document.getElementById('subtitle').textContent =
       `${takes.length} groups · ${videos.length} videos${dupeNote}`;
-
-    // Build nav
-    let navHtml = '<div class="nav-inner">';
-    takes.forEach((take, idx) => {
-      const earliest = Math.min(...Object.values(take).map(v => v.ts));
-      navHtml += `<a href="#take-${idx}">${formatNavDate(earliest)}</a>`;
-    });
-    navHtml += '</div>';
-    document.getElementById('nav').innerHTML = navHtml;
 
     // Render takes
     let html = '';

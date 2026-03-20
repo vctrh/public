@@ -1,26 +1,5 @@
 [
   {
-    "video_id": "5db06353-bf64-4371-9ba1-4d1eecc68050",
-    "direction": "West",
-    "title": "DJI_20260309103045_0001_D_W001",
-    "created": "2026-03-09 09:31:26",
-    "ts": 1773048686.0
-  },
-  {
-    "video_id": "2ffb3eb5-1a1c-4f0d-b836-fe5f530f2f97",
-    "direction": "North",
-    "title": "DJI_20260309103046_0001_D_N001",
-    "created": "2026-03-09 09:31:27",
-    "ts": 1773048687.0
-  },
-  {
-    "video_id": "dfbf03c7-8efe-4a57-84de-61e5f05d5dd1",
-    "direction": "East",
-    "title": "DJI_20260309103047_0001_D_E001",
-    "created": "2026-03-09 09:31:27",
-    "ts": 1773048687.0
-  },
-  {
     "video_id": "4b7046c8-fe12-4189-b23c-c7d0c2de70e9",
     "direction": "West",
     "title": "DJI_20260309112218_0002_D_W001",
