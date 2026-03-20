@@ -14,23 +14,15 @@
   .subtitle { text-align: center; color: #888; margin-bottom: 40px; font-size: 14px; }
   .loading { text-align: center; color: #888; margin-top: 80px; font-size: 16px; }
 
-  /* Poomsae section */
-  .poomsae-section { margin-bottom: 64px; }
-  .poomsae-header {
-    display: flex; align-items: baseline; gap: 16px;
-    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #D45520;
-  }
-  .poomsae-name { font-size: 24px; font-weight: 700; color: #D45520; }
-  .poomsae-shot { font-size: 14px; color: #666; font-family: monospace; }
-  .poomsae-note { font-size: 13px; color: #888; margin-bottom: 16px; font-style: italic; }
-  .day-label {
-    font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase;
-    letter-spacing: 1px; margin-top: 48px; margin-bottom: 16px;
-    padding-top: 16px; border-top: 1px solid #222;
+  /* Group section */
+  .group-section { margin-bottom: 48px; }
+  .group-header {
+    font-size: 18px; font-weight: 700; color: #D45520;
+    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #D45520;
   }
 
-  /* Take within a poomsae */
-  .take { margin-bottom: 32px; margin-left: 16px; }
+  /* Take within a group */
+  .take { margin-bottom: 32px; }
   .take-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .take-label { font-size: 16px; font-weight: 600; color: #ccc; }
   .take-time { font-size: 13px; color: #666; font-family: monospace; }
@@ -46,10 +38,6 @@
     background: #1a1a1a; border-radius: 8px; aspect-ratio: 1/1;
     display: flex; align-items: center; justify-content: center; color: #444; font-size: 14px;
   }
-
-  /* Unmatched section */
-  .unmatched-section { margin-top: 80px; padding-top: 32px; border-top: 2px solid #333; }
-  .unmatched-section h2 { font-size: 18px; color: #666; margin-bottom: 16px; }
 
   /* Nav */
   .nav { position: sticky; top: 0; background: #111; z-index: 100; padding: 12px 0; margin-bottom: 24px; border-bottom: 1px solid #222; }
@@ -73,36 +61,23 @@ const LIBRARY_ID = '621173';
 const MATCH_WINDOW = 2; // seconds — how close timestamps must be to count as same take
 const DIRECTIONS = ['North', 'South', 'East', 'West'];
 
-// VFX supervisor shot list — each shot may span multiple files (cam stops).
-// "files" = how many consecutive take-groups this shot occupies.
-const SHOT_LIST = [
-  // Day 1
-  { shot: 1,  poomsae: 'Koryo',       files: 1, day: 1, note: 'Takes 1–4. All good.' },
-  { shot: 2,  poomsae: 'Pyongwon',    files: 2, day: 1, note: 'Takes 1–5 (file 1), takes 6–8 (file 2). Mic fell out take 2.' },
-  { shot: 3,  poomsae: 'Sa Jang',     files: 2, day: 1, note: 'Takes 1–5 (file 1), takes 6–10 (file 2).' },
-  { shot: 4,  poomsae: 'Jitae',       files: 2, day: 1, note: 'Takes 1–2 (file 1, foot outside frame), takes 3–6 (file 2, zoom off).' },
-  { shot: 5,  poomsae: 'Ilyo',        files: 1, day: 1, note: 'Takes 1–6. 2x zoom all.' },
-  { shot: 6,  poomsae: 'O Jang',      files: 2, day: 1, note: 'Takes 1–2 (file 1, 2x zoom), takes 3–4 (file 2, switched to 1x longsides).' },
-  { shot: 7,  poomsae: 'Yuk Jang',    files: 1, day: 1, note: 'Takes 1–4. 1x zoom longsides.' },
-  { shot: 8,  poomsae: 'Sipjin',      files: 1, day: 1, note: 'Takes 1–3. "Big move". 1x zoom longsides.' },
-  { shot: 9,  poomsae: 'Chil Jang',   files: 2, day: 1, note: 'Take 1 (file 1), takes 2–3 (file 2). 2x zoom.' },
-  // Day 2
-  { shot: 10, poomsae: 'Hansu',       files: 1, day: 2, note: 'Takes 1–3. 2x zoom.' },
-  { shot: 11, poomsae: 'Chonkwon',    files: 2, day: 2, note: 'Takes 1–5 (file 1, hair needle fell out), takes 6–10 (file 2). 1x longsides.' },
-  { shot: 12, poomsae: 'Taebaek',     files: 2, day: 2, note: 'Takes 1–4 (file 1), takes 4–5 (file 2, "might be best"). 2x zoom.' },
-  { shot: 13, poomsae: 'Pal Jang',    files: 1, day: 2, note: 'Takes 1–4. All good. 2x zoom.' },
-  { shot: 14, poomsae: 'Keumgang',    files: 1, day: 2, note: 'Takes 1–5. 2x zoom.' },
-  { shot: 15, poomsae: 'Sam Jang',    files: 1, day: 2, note: 'Takes 1–3. 2x zoom.' },
-  { shot: 16, poomsae: 'Il Jang',     files: 1, day: 2, note: 'Takes 1–4. Cam 6 overheated on take 4. 2x zoom.' },
-  { shot: 17, poomsae: 'Ee Jang',     files: 1, day: 2, note: 'Takes 1–5. 2x zoom.' },
-  // Re-shoots
-  { shot: 18, poomsae: 'Sa Jang',     files: 1, day: 2, note: 'Re-shoot. Takes 1–7. 2x zoom.' },
-  { shot: 19, poomsae: 'Jitae',       files: 1, day: 2, note: 'Re-shoot. Takes 1–3. 2x zoom.' },
-  { shot: 20, poomsae: 'Jitae',       files: 1, day: 2, note: 'Re-shoot. Takes 1–3. 1x zoom.' },
-];
+function formatGroupDate(ts) {
+  const d = new Date(ts * 1000);
+  return d.toLocaleString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+    timeZone: 'UTC'
+  });
+}
 
-// Total expected files per direction: sum of all "files" values
-const EXPECTED_FILES = SHOT_LIST.reduce((sum, s) => sum + s.files, 0); // 27
+function formatNavDate(ts) {
+  const d = new Date(ts * 1000);
+  return d.toLocaleString('en-US', {
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+    timeZone: 'UTC'
+  });
+}
 
 fetch('review-data.json')
   .then(r => r.json())
@@ -111,11 +86,11 @@ fetch('review-data.json')
     videos = videos.filter(v => DIRECTIONS.includes(v.direction));
     if (!videos.length) {
       document.getElementById('content').innerHTML =
-        '<p class="loading">No video data yet. Run the export cell in Colab after uploading.</p>';
+        '<p class="loading">No video data yet.</p>';
       return;
     }
 
-    // Deduplicate by video_id (exact duplicate uploads)
+    // Deduplicate by video_id
     const seenIds = new Set();
     const dupeCount = videos.length;
     videos = videos.filter(v => {
@@ -124,7 +99,7 @@ fetch('review-data.json')
       return true;
     });
 
-    // Deduplicate by title+direction (same source file uploaded twice with different IDs)
+    // Deduplicate by title+direction
     const seenTitleDir = new Set();
     videos = videos.filter(v => {
       const key = `${v.title}|${v.direction}`;
@@ -158,167 +133,52 @@ fetch('review-data.json')
       takes.push(take);
     }
 
-    // Separate "real" takes (3–4 directions) from short/test clips (1–2 directions or very few)
-    const realTakes = [];
-    const shortTakes = [];
-
-    for (const take of takes) {
-      const dirCount = Object.keys(take).length;
-      if (dirCount >= 3) {
-        realTakes.push(take);
-      } else {
-        shortTakes.push(take);
-      }
-    }
-
-    // Map real takes sequentially to the shot list
-    // Each shot consumes N consecutive takes (shot.files)
-    let takeIdx = 0;
-    const sections = []; // { shot, takes: [...] }
-
-    for (const shot of SHOT_LIST) {
-      const shotTakes = [];
-      for (let f = 0; f < shot.files && takeIdx < realTakes.length; f++) {
-        shotTakes.push(realTakes[takeIdx]);
-        takeIdx++;
-      }
-      sections.push({ ...shot, takes: shotTakes });
-    }
-
-    // Any remaining real takes that weren't matched
-    const unmatchedTakes = realTakes.slice(takeIdx);
-
-    // Build navigation
-    let navHtml = '<div class="nav-inner">';
-    let lastDay = 0;
-    for (const sec of sections) {
-      if (sec.day !== lastDay) {
-        if (lastDay > 0) navHtml += '<span class="day-sep">|</span>';
-        navHtml += `<span class="day-sep">Day ${sec.day}</span>`;
-        lastDay = sec.day;
-      }
-      const label = sec.shot >= 18 ? `${sec.poomsae} (re)` : sec.poomsae;
-      navHtml += `<a href="#shot-${sec.shot}">${label}</a>`;
-    }
-    navHtml += '</div>';
-    document.getElementById('nav').innerHTML = navHtml;
-
     // Update subtitle
     const dupeNote = dupesRemoved > 0 ? ` · ${dupesRemoved} duplicates removed` : '';
     document.getElementById('subtitle').textContent =
-      `${realTakes.length} take groups · ${videos.length} videos · ${sections.length} shots · ${EXPECTED_FILES} expected files/direction${dupeNote}`;
+      `${takes.length} groups · ${videos.length} videos${dupeNote}`;
 
-    // Render sections
+    // Build nav
+    let navHtml = '<div class="nav-inner">';
+    takes.forEach((take, idx) => {
+      const earliest = Math.min(...Object.values(take).map(v => v.ts));
+      navHtml += `<a href="#take-${idx}">${formatNavDate(earliest)}</a>`;
+    });
+    navHtml += '</div>';
+    document.getElementById('nav').innerHTML = navHtml;
+
+    // Render takes
     let html = '';
-    let lastRenderedDay = 0;
+    takes.forEach((take, idx) => {
+      const earliest = Math.min(...Object.values(take).map(v => v.ts));
+      const timeStr = new Date(earliest * 1000).toISOString().replace('T', ' ').replace(/\.\d+Z/, ' UTC');
 
-    for (const sec of sections) {
-      if (sec.day !== lastRenderedDay) {
-        html += `<div class="day-label">Day ${sec.day}</div>`;
-        lastRenderedDay = sec.day;
-      }
-
-      const isReshoot = sec.shot >= 18;
-      const nameLabel = isReshoot ? `${sec.poomsae} (re-shoot)` : sec.poomsae;
-
-      html += `<div class="poomsae-section" id="shot-${sec.shot}">
-        <div class="poomsae-header">
-          <span class="poomsae-name">${nameLabel}</span>
-          <span class="poomsae-shot">Shot ${sec.shot}</span>
-        </div>`;
-
-      if (sec.note) {
-        html += `<div class="poomsae-note">${sec.note}</div>`;
-      }
-
-      if (sec.takes.length === 0) {
-        html += '<div class="take"><p style="color:#666">No matching files found yet.</p></div>';
-      }
-
-      sec.takes.forEach((take, tIdx) => {
-        const earliest = Math.min(...Object.values(take).map(v => v.ts));
-        const date = new Date(earliest * 1000);
-        const timeStr = date.toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
-        const fileLabel = sec.files > 1 ? `File ${tIdx + 1} of ${sec.files}` : 'File';
-
-        html += `<div class="take">
-          <div class="take-header">
-            <span class="take-label">${fileLabel}</span>
-            <span class="take-time">${timeStr}</span>
-          </div>
+      html += `<div class="group-section" id="take-${idx}">
+        <div class="group-header">${formatGroupDate(earliest)}</div>
+        <div class="take">
           <div class="take-grid">`;
 
-        DIRECTIONS.forEach(dir => {
-          if (take[dir]) {
-            const v = take[dir];
-            const embedUrl = `https://iframe.mediadelivery.net/embed/${LIBRARY_ID}/${v.video_id}?autoplay=false&preload=false`;
-            html += `<div class="video-card">
-              <iframe src="${embedUrl}" loading="lazy"
-                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen></iframe>
-              <div class="video-info">
-                <div class="video-direction">${dir}</div>
-                <div class="video-filename">${v.title}.mp4</div>
-                <div class="video-time">${v.created || ''}</div>
-              </div>
-            </div>`;
-          } else {
-            html += `<div class="missing">${dir} &mdash; not found</div>`;
-          }
-        });
-
-        html += '</div></div>';
+      DIRECTIONS.forEach(dir => {
+        if (take[dir]) {
+          const v = take[dir];
+          const embedUrl = `https://iframe.mediadelivery.net/embed/${LIBRARY_ID}/${v.video_id}?autoplay=false&preload=false`;
+          html += `<div class="video-card">
+            <iframe src="${embedUrl}" loading="lazy"
+                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+            <div class="video-info">
+              <div class="video-direction">${dir}</div>
+              <div class="video-filename">${v.title}.mp4</div>
+              <div class="video-time">${v.created || ''}</div>
+            </div>
+          </div>`;
+        } else {
+          html += `<div class="missing">${dir} &mdash; not found</div>`;
+        }
       });
 
-      html += '</div>';
-    }
-
-    // Render unmatched takes (extra files beyond the shot list)
-    const allUnmatched = [...unmatchedTakes, ...shortTakes];
-    if (allUnmatched.length > 0) {
-      html += `<div class="unmatched-section">
-        <h2>Unmatched files (${allUnmatched.length} groups)</h2>
-        <p style="color:#666; margin-bottom:24px; font-size:14px">
-          These files didn't match the shot list — likely short test clips or extra recordings.
-        </p>`;
-
-      allUnmatched.forEach((take, idx) => {
-        const earliest = Math.min(...Object.values(take).map(v => v.ts));
-        const date = new Date(earliest * 1000);
-        const timeStr = date.toISOString().replace('T', ' ').replace(/\.\d+Z/, '');
-        const dirCount = Object.keys(take).length;
-
-        html += `<div class="take">
-          <div class="take-header">
-            <span class="take-label" style="color:#666">Extra ${idx + 1} (${dirCount} angle${dirCount !== 1 ? 's' : ''})</span>
-            <span class="take-time">${timeStr}</span>
-          </div>
-          <div class="take-grid">`;
-
-        DIRECTIONS.forEach(dir => {
-          if (take[dir]) {
-            const v = take[dir];
-            const embedUrl = `https://iframe.mediadelivery.net/embed/${LIBRARY_ID}/${v.video_id}?autoplay=false&preload=false`;
-            html += `<div class="video-card">
-              <iframe src="${embedUrl}" loading="lazy"
-                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen></iframe>
-              <div class="video-info">
-                <div class="video-direction">${dir}</div>
-                <div class="video-filename">${v.title}.mp4</div>
-                <div class="video-time">${v.created || ''}</div>
-              </div>
-            </div>`;
-          } else {
-            html += `<div class="missing">${dir} &mdash; not found</div>`;
-          }
-        });
-
-        html += '</div></div>';
-      });
-
-      html += '</div>';
-    }
+      html += '</div></div></div>';
+    });
 
     document.getElementById('content').innerHTML = html;
   })
