@@ -54,15 +54,20 @@ const LIBRARY_ID = '621173';
 const MATCH_WINDOW = 3; // seconds — how close timestamps must be to count as same take
 const DIRECTIONS = ['North', 'South', 'East', 'West'];
 
-// Poomsae labels keyed by the formatted group header (output of formatGroupDate)
+// Poomsae labels keyed by the formatted group header (output of formatGroupDate).
+// The insertion order here is also the display order on the page — re-shoots are
+// placed immediately after the original takes of the same poomsae.
 const POOMSAE_MAP = {
   'March 9, 2026 at 10:32 AM':  'Koryo - Take 1',
   'March 9, 2026 at 10:49 AM':  'Pyongwon - Take 1',
   'March 9, 2026 at 10:57 AM':  'Pyongwon - Take 2',
   'March 9, 2026 at 11:09 AM':  'Sa Jang - Take 1',
   'March 9, 2026 at 11:18 AM':  'Sa Jang - Take 2',
+  'March 10, 2026 at 11:04 AM': 'Sa Jang - Re-Shoot - Take 1',
   'March 9, 2026 at 11:30 AM':  'Jitae - Take 1',
   'March 9, 2026 at 11:41 AM':  'Jitae - Take 2',
+  'March 10, 2026 at 12:51 PM': 'Jitae - Re-Shoot - Take 1',
+  'March 10, 2026 at 01:01 PM': 'Jitae - Re-Shoot - Take 2',
   'March 9, 2026 at 01:32 PM':  'Ilyeo - Take 1',
   'March 9, 2026 at 01:41 PM':  'Oh Jang - Take 1',
   'March 9, 2026 at 01:46 PM':  'Oh Jang - Take 2',
@@ -80,10 +85,8 @@ const POOMSAE_MAP = {
   'March 10, 2026 at 10:10 AM': 'Sam Jang - Take 1',
   'March 10, 2026 at 10:18 AM': 'Il Jang - Take 1',
   'March 10, 2026 at 10:49 AM': 'E Jang - Take 1',
-  'March 10, 2026 at 11:04 AM': 'Sa Jang - Re-Shoot - Take 1',
-  'March 10, 2026 at 12:51 PM': 'Jitae - Re-Shoot - Take 1',
-  'March 10, 2026 at 01:01 PM': 'Jitae - Re-Shoot - Take 2',
 };
+const DISPLAY_ORDER = Object.keys(POOMSAE_MAP);
 
 function formatGroupDate(ts) {
   const d = new Date(ts * 1000);
@@ -154,6 +157,20 @@ fetch('review-data.json?v=' + Date.now())
       }
       takes.push(take);
     }
+
+    // Sort takes by DISPLAY_ORDER (groups re-shoots with their poomsae).
+    // Groups whose header isn't in DISPLAY_ORDER fall through to the end,
+    // sorted by their earliest timestamp.
+    takes.sort((a, b) => {
+      const tsA = Math.min(...Object.values(a).map(v => v.ts));
+      const tsB = Math.min(...Object.values(b).map(v => v.ts));
+      const idxA = DISPLAY_ORDER.indexOf(formatGroupDate(tsA));
+      const idxB = DISPLAY_ORDER.indexOf(formatGroupDate(tsB));
+      if (idxA === -1 && idxB === -1) return tsA - tsB;
+      if (idxA === -1) return 1;
+      if (idxB === -1) return -1;
+      return idxA - idxB;
+    });
 
     // Update subtitle
     const dupeNote = dupesRemoved > 0 ? ` · ${dupesRemoved} duplicates removed` : '';
