@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Snapkick — Poomsae Review</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,7 +64,7 @@ function formatGroupDate(ts) {
 }
 
 
-fetch('review-data.json')
+fetch('review-data.json?v=' + Date.now())
   .then(r => r.json())
   .then(videos => {
     // Filter to only N/S/E/W
