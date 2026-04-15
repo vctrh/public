@@ -54,6 +54,37 @@ const LIBRARY_ID = '621173';
 const MATCH_WINDOW = 3; // seconds — how close timestamps must be to count as same take
 const DIRECTIONS = ['North', 'South', 'East', 'West'];
 
+// Poomsae labels keyed by the formatted group header (output of formatGroupDate)
+const POOMSAE_MAP = {
+  'March 9, 2026 at 10:32 AM':  'Koryo - Take 1',
+  'March 9, 2026 at 10:49 AM':  'Pyongwon - Take 1',
+  'March 9, 2026 at 10:57 AM':  'Pyongwon - Take 2',
+  'March 9, 2026 at 11:09 AM':  'Sa Jang - Take 1',
+  'March 9, 2026 at 11:18 AM':  'Sa Jang - Take 2',
+  'March 9, 2026 at 11:30 AM':  'Jitae - Take 1',
+  'March 9, 2026 at 11:41 AM':  'Jitae - Take 2',
+  'March 9, 2026 at 01:32 PM':  'Ilyeo - Take 1',
+  'March 9, 2026 at 01:41 PM':  'Oh Jang - Take 1',
+  'March 9, 2026 at 01:46 PM':  'Oh Jang - Take 2',
+  'March 9, 2026 at 01:56 PM':  'Yuk Jang - Take 1',
+  'March 9, 2026 at 02:08 PM':  'Sipjin - Take 1',
+  'March 9, 2026 at 02:14 PM':  'Chil Jang - Take 1',
+  'March 9, 2026 at 02:18 PM':  'Chil Jang - Take 1',
+  'March 10, 2026 at 08:47 AM': 'Hansu - Take 1',
+  'March 10, 2026 at 08:59 AM': 'Chonkwon - Take 1',
+  'March 10, 2026 at 09:11 AM': 'Chonkwon - Take 2',
+  'March 10, 2026 at 09:23 AM': 'Taebaek - Take 1',
+  'March 10, 2026 at 09:31 AM': 'Taebaek - Take 2',
+  'March 10, 2026 at 09:47 AM': 'Pal Jang - Take 1',
+  'March 10, 2026 at 10:02 AM': 'Keumgang - Take 1',
+  'March 10, 2026 at 10:10 AM': 'Sam Jang - Take 1',
+  'March 10, 2026 at 10:18 AM': 'Il Jang - Take 1',
+  'March 10, 2026 at 10:49 AM': 'E Jang - Take 1',
+  'March 10, 2026 at 11:04 AM': 'Sa Jang - Re-Shoot - Take 1',
+  'March 10, 2026 at 12:51 PM': 'Jitae - Re-Shoot - Take 1',
+  'March 10, 2026 at 01:01 PM': 'Jitae - Re-Shoot - Take 2',
+};
+
 function formatGroupDate(ts) {
   const d = new Date(ts * 1000);
   return d.toLocaleString('en-US', {
@@ -61,6 +92,12 @@ function formatGroupDate(ts) {
     hour: '2-digit', minute: '2-digit', hour12: true,
     timeZone: 'UTC'
   });
+}
+
+function groupHeader(ts) {
+  const dateStr = formatGroupDate(ts);
+  const poomsae = POOMSAE_MAP[dateStr];
+  return poomsae ? `${dateStr} — ${poomsae}` : dateStr;
 }
 
 
@@ -130,7 +167,7 @@ fetch('review-data.json?v=' + Date.now())
       const timeStr = new Date(earliest * 1000).toISOString().replace('T', ' ').replace(/\.\d+Z/, ' UTC');
 
       html += `<div class="group-section" id="take-${idx}">
-        <div class="group-header">${formatGroupDate(earliest)}</div>
+        <div class="group-header">${groupHeader(earliest)}</div>
         <div class="take">
           <div class="take-grid">`;
 
